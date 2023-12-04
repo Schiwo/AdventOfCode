@@ -48,55 +48,51 @@ with open("input\\input3.txt") as f:
 # print(sumOfParts)
 
 # Part 2
+import numpy as np
+from itertools import product
+
+
+def find_true_indices(lst, index=0):
+    print(lst)
+    if index >= len(lst):
+        return []
+    elif lst[index]:
+        return [index] + find_true_indices(lst, index+1)
+    else:
+        return find_true_indices(lst, index+1)
+
 sumOfGears = 0
 
 symbols = [None] * len(lines)
 gearsSameLine =  [None] * len(lines)
-gearOne = [None] * len(lines)
-gearTwo = [None] * len(lines)
+gearsNum = [None] * len(lines)
+gearsNumId = [None] * len(lines)
+gearsMiddle = [None] * len(lines)
+
 
 for x in range(len(lines)):
-    gearsSameLine[x] = re.findall(r'\d+\*\d+', lines[x])
-    if(gearsSameLine[x]):
-        for y in range(len(gearsSameLine[x])):
-            print(gearsSameLine[x][y])
-            gearNums = re.findall(r'\d', gearsSameLine[x][y])
-            sumOfGears += int(gearNums[0]) * int(gearNums[1])
-        print(sumOfGears)
-    
-    # gearOne[x] = set()
-    # gearOne[x] = [m.span() for m in re.finditer(r'\d+(?!\d)', lines[x])]
-    # gearOne[x] = gearOne[x] + [x+1 for x in gearOne[x]] + [x-1 for x in gearOne[x]]
-    
-    # gearTwo[x] = set()
-    # gearTwo[x] = [m.span() for m in re.finditer(r'(\*)', lines[x])]
-    
-    # gearSpaces[x] = set()
-    
-    # if(gearOne[x].intersection(set(range(matches[y][0][0],matches[y][0][1])))):
-    
+   
+    gearsNum[x] = [m.group() for m in re.finditer(r'\d+(?!\d)', lines[x])]
+    gearsNumId[x] = [[range(m.span()[0], m.span()[1])] for m in re.finditer(r'\d+(?!\d)', lines[x])]
 
 
-# for x in range(len(lines)):
-#     gearSpaces[x] = set()
-#     if (x>0 and x<(len(lines)-1)):
-#         gearSpaces[x].update(symbols[x - 1])
-#         gearSpaces[x].update(symbols[x])
-#         gearSpaces[x].update(symbols[x + 1])
-#     elif (x == 0):
-#         gearSpaces[x].update(symbols[x])
-#         gearSpaces[x].update(symbols[x + 1])
-#     elif(x == (len(lines)-1)):
-#         gearSpaces[x].update(symbols[x - 1])
-#         gearSpaces[x].update(symbols[x])
+    if (x>0):
+        gearsNum[x].extend([m.group() for m in re.finditer(r'\d+(?!\d)', lines[x-1])])
+        gearsNumId[x].extend([[range(m.span()[0], m.span()[1])] for m in re.finditer(r'\d+(?!\d)', lines[x-1])])
+    if (x < (len(lines)-1)):
+        gearsNum[x].extend([m.group() for m in re.finditer(r'\d+(?!\d)', lines[x+1])])
+        gearsNumId[x].extend([[range(m.span()[0], m.span()[1])] for m in re.finditer(r'\d+(?!\d)', lines[x+1])])
         
-#     matches = [(m.span(), m.group()) for m in re.finditer(r'\d+(?!\d)', lines[x])]
-#     for y in range(len(matches)):
-#         if (gearSpaces[x].intersection(set(range(matches[y][0][0],matches[y][0][1])))):
-#             sumOfGears += int(matches[y][1])
- 
-# print(sumOfGears)
+    gearsMiddle[x] = [m.start(0) for m in re.finditer(r'\*', lines[x])]
+    
+    for g in gearsMiddle[x]:
+        adjacentNums = []
+        for n in range(len(gearsNumId[x])):
+            if(np.isclose(g, gearsNumId[x][n], rtol = 0, atol = 1).any()):
+                adjacentNums.append(int(gearsNum[x][n]))
+        if(len(adjacentNums) == 2):
+            sumOfGears += np.product(adjacentNums)
 
-print(lines[0])
-# print([m.span() for m in re.finditer(r'\d+(?!\d)', lines[0])])
-# print(lines[0][11])
+
+print(sumOfGears)
+     
