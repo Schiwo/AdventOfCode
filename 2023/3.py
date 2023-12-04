@@ -63,8 +63,6 @@ def find_true_indices(lst, index=0):
 
 sumOfGears = 0
 
-symbols = [None] * len(lines)
-gearsSameLine =  [None] * len(lines)
 gearsNum = [None] * len(lines)
 gearsNumId = [None] * len(lines)
 gearsMiddle = [None] * len(lines)

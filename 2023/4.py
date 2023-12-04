@@ -40,10 +40,12 @@ with open("input\\input4.txt") as f:
 # Part 2
 import numpy as np
 
-cards = 0
+totalCardWins = 0
 cardsN = len(lines)
+numbers = [None] * len(lines)
+winners = [None] * len(lines)
+cardWins = [None] * len(lines)
 
-depth = 0
 
 for x in range(cardsN):
     lines[x] = re.sub(r'(Card\s+[0-9\(\)]+:\s)', ' ', lines[x])
@@ -51,9 +53,9 @@ for x in range(cardsN):
     winners[x] = re.findall(r'\d+', lines[x][0])
     numbers[x] = re.findall(r'\d+', lines[x][1])
 
+
+
 def win(cardID):
-    depth+=1
-    print(depth)
     print("Current Card: " + str(cardID))
     wins = list(range(cardID+1, cardID + 1 + len(set(winners[cardID]) & set(numbers[cardID]))))
     print(wins)
@@ -62,15 +64,14 @@ def win(cardID):
         print("no win!")
         return 1
     else:
-        return 1 + sum(list(map(win, wins)))
+        return 1 + sum(list(map(lambda n: cardWins[n], wins)))
+
         # return np.product(list(map(win, wins)))
     
+for i in range(cardsN-1,-1,-1):
+    cardWins[i] = win(i)
 
-cards=win(0)
-# for x in range(len(lines)):
-#     print(win(x))
-    
+totalCardWins = sum(cardWins)
 
+print(totalCardWins)
 
-    
-print(cards)
