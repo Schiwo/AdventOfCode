@@ -108,10 +108,11 @@ def maxDistance():
 # print(navigate((1,2), (1,1)))
 
 #Part 2
+copy2 = np.copy(laby)
 
 def markLaby():
     markedLaby = np.copy(laby)
-    start1 = changeListDatatype(np.where(laby == "S"))
+    start1 = np.where(laby == "S")
     start2 = findConnection(start1)
     markedLaby[start2] = 1
     pos = [start1, 
@@ -128,48 +129,52 @@ def countArea(mLaby):
     counter = 0
     copy = np.copy(mLaby)
     for x in range(len(mLaby[0,:])):
+        openRight = False
+        openLeft = False
         counting = False
         element = -1
         maxElement = np.count_nonzero(mLaby[:,x] == "1")
         for y in range(len(mLaby[:,0])):
-            openRight = False
-            openLeft = False
             if mLaby[y,x] == "1":
-                if not counting:
-                    counting = True
-                elif counting:
-                    if laby[y,x] == "-":
-                        counting = False
-                    elif laby[y,x] == "F":
-                        openRight = True
-                    elif laby[y,x] == "7":
-                        openLeft = True
-                    elif laby[y,x] == "L":
-                        if (openLeft):
-                            counting = False
-                            opeLeft = False
-                            openRight = False
-                        else:
-                            openRight = False
-                    elif laby[y,x] == "J":
-                        counting = False
-                        if (openRight):
-                            counting = False
-                            opeLeft = False
-                            openRight = False
-                        else:
-                            openLeft = False
                 element += 1
-            
+                if laby[y,x] == "-":
+                    counting = not counting
+                elif laby[y,x] == "F":
+                    openRight = True
+                elif laby[y,x] == "7":
+                    openLeft = True
+                elif laby[y,x] == "L":
+                    if (openLeft == True):
+                        counting = not counting
+                        openLeft = False
+                        openRight = False
+                    else:
+                        openRight = False
+                        openLeft = False
+                elif laby[y,x] == "J":
+                    if (openRight == True):
+                        counting = not counting
+                        openRight = False
+                        openLeft = False
+                    else:
+                        openLeft = False
+                        openRight = False
+                if counting:
+                    copy[y,x] = "C"
+                else:
+                    copy[y,x] = "N"
+                # if x == 2:
+                    # print(laby[y,x])
+                    # print("oright:" + str(openRight))
+                    # print("oleft:" + str(openLeft))
+                           
             elif(counting and (maxElement - element) >= 2):
                 copy[y,x] = "X"
+                copy2[y,x] = "X"
                 counter += 1
-    return copy
+            else:
+                copy[y,x] = " "
+                copy2[y,x] = " "
+    return counter
     
-
-print(laby)
-print(" ")
-import sys
-np.set_printoptions(threshold = sys.maxsize)
 print(countArea(markLaby()))
-np.savetxt("dat.csv", countArea(markLaby()), fmt='%s')
