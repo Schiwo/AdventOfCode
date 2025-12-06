@@ -9,74 +9,89 @@ Created on Fri Dec  5 10:07:11 2025
 #%%
 import numpy as np
 
-with open('input/3.txt', 'r') as file:
+with open('input/4.txt', 'r') as file:
 # with open('input/example.txt', 'r') as file:
     lines = file.read().strip().split("\n")
     
-banks = lines
-print(banks)
+grid = lines
+print(grid)
 
 
 # %% PART 1
-total = 0
+def count_adjacent_at(grid):
+    rows = len(grid)
+    cols = len(grid[0]) if rows > 0 else 0
 
-def highest_joltage(s: str) -> int:
-    digits = np.array([int(c) for c in s if c.isdigit()])
+    # Directions for adjacency (8 neighbors)
+    directions = [
+        (-1, -1), (-1, 0), (-1, 1),
+        (0, -1),          (0, 1),
+        (1, -1),  (1, 0), (1, 1)
+    ]
+
+    result = []
+
+    for r in range(rows):
+        row_results = []
+        for c in range(cols):
+            if(grid[r][c] != "@"):
+                row_results.append(False)
+            else:
+                count = 0
+                for dr, dc in directions:
+                    nr, nc = r + dr, c + dc
+                    # stay inside bounds
+                    if 0 <= nr < rows and 0 <= nc < len(grid[nr]):
+                        if grid[nr][nc] == "@":
+                            count += 1
+                if(count < 4):
+                    row_results.append(True)
+                else:
+                    row_results.append(False)
+        result.append(row_results)
+
+
     
-    uniq = np.unique(digits[:-1])
-    tens = np.max(uniq)
-    
-    idxTens = np.where(digits == tens)[0]
-    uniq2 = np.unique(digits[idxTens[0]+1:])
-    ones = np.max(uniq2)
-        
-    return tens * 10 + ones
+    return result
 
+movable = count_adjacent_at(grid)
+count = 0
 
-for bank in banks:
-    batteryJolt = highest_joltage(bank)
-    print(batteryJolt)
-    total += batteryJolt
+for row in movable:
+    count += row.count(True)
 
-print("Total joltage: ", total)
+print(count_adjacent_at(grid))
+print("Total rolls: ", count)
 
 # %% PART 2
 
-total = 0
+def remove_rolls(grid, mask):
 
-def highest_joltage2(s: str) -> int:
-    digits = np.array([int(c) for c in s if c.isdigit()])
+    result = []
+    for r in range(len(grid)):
+        row = grid[r]
+        new_chars = []
+        for c in range(len(row)):
+            if mask[r][c]:
+                new_chars.append(".")
+            else:
+                new_chars.append(row[c])
+        result.append("".join(new_chars))
+    return result
+
+for row in grid:
+    print(row)
+
+count = 0
+while(True):
+    removed = 0
+    movable = count_adjacent_at(grid)
+    grid = remove_rolls(grid, movable)
+    for row in movable:
+        removed += row.count(True)
+    count += removed
+    if(removed == 0):
+        break
     
-    batteries = []
-    jolt = 0
+print("Total rolls: ", count)
 
-    print(digits)
-    for x in range(1, 13):
-        if x == 12:
-            uniq = np.unique(digits[:])
-            # print(digits[idCut:])
-            # print(digits)
-
-        else:
-            uniq = np.unique(digits[: (x-12)])
-            print(digits[:(x-12)])
-            # print(x)
-            
-        maxBattery = np.max(uniq)
-        print("max:", maxBattery)
-        idCut = np.where(digits == maxBattery)[0][0] + 1
-        digits = digits[idCut:]
-        batteries.append(maxBattery)
-
-        # print(maxBattery)
-        
-    jolt = int("".join(str(x) for x in batteries))
-    return jolt
-
-
-for bank in banks[:]:
-    batteryJolt = highest_joltage2(bank)
-    print(batteryJolt)
-    total += batteryJolt
-
-print("Total joltage: ", total)
